@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#111111" />
+  <title>German Flashcards (Offline)</title>
+
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- iOS PWA niceties -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">DE</div>
+      <div>
+        <div class="title">German Flashcards</div>
+        <div class="subtitle" id="subtitle">Offline-first • Local-only</div>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <button id="btnTheme" class="btn ghost" title="Toggle dark mode">🌙</button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="study">Study</button>
+    <button class="tab" data-tab="decks">Decks</button>
+    <button class="tab" data-tab="importExport">Import/Export</button>
+    <button class="tab" data-tab="settings">Settings</button>
+  </nav>
+
+  <main class="container">
+    <!-- STUDY -->
+    <section id="tab-study" class="panel active">
+      <div class="grid2">
+        <div class="card panelCard">
+          <h2>Study</h2>
+
+          <div class="row">
+            <label class="label">Deck</label>
+            <select id="studyDeckSelect" class="input"></select>
+          </div>
+
+          <div class="row">
+            <label class="label">Mode</label>
+            <div class="segmented">
+              <button class="seg active" id="modeFlash" type="button">Flashcards</button>
+              <button class="seg" id="modeGender" type="button">Gender quiz</button>
+            </div>
+          </div>
+
+          <div class="row">
+            <label class="label">Session</label>
+            <div class="inline">
+              <input id="sessionGoal" class="input small" type="number" min="5" max="200" value="20" />
+              <button id="btnStartSession" class="btn primary">Start</button>
+            </div>
+          </div>
+
+          <div class="stats" id="studyStats"></div>
+          <div class="hint">Tip: Add to Home Screen on iPhone for an app-like experience.</div>
+        </div>
+
+        <div class="card panelCard">
+          <h2>Card</h2>
+
+          <div id="studyEmpty" class="empty">
+            Start a session to begin.
+          </div>
+
+          <div id="studyArea" class="studyArea hidden">
+            <div class="studyTop">
+              <div class="pill" id="pillMode">Flashcards</div>
+              <div class="pill" id="pillProgress">0 / 0</div>
+            </div>
+
+            <div class="flashcard" id="flashcard" role="button" tabindex="0" aria-label="Flashcard, tap to flip">
+              <div class="face" id="cardFace"></div>
+              <div class="meta" id="cardMeta"></div>
+            </div>
+
+            <div id="genderChoices" class="genderChoices hidden">
+              <button class="btn" data-gender="der">der</button>
+              <button class="btn" data-gender="die">die</button>
+              <button class="btn" data-gender="das">das</button>
+            </div>
+
+            <div class="row space">
+              <button id="btnSpeak" class="btn ghost" title="Text-to-speech (German)">🔊 Speak</button>
+              <button id="btnShowAnswer" class="btn" type="button">Show / Flip</button>
+            </div>
+
+            <div class="row space">
+              <button id="btnAgain" class="btn danger" type="button">Again</button>
+              <button id="btnGood" class="btn primary" type="button">Good</button>
+              <button id="btnEasy" class="btn" type="button">Easy</button>
+            </div>
+
+            <div class="result" id="genderResult"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DECKS -->
+    <section id="tab-decks" class="panel">
+      <div class="grid2">
+        <div class="card panelCard">
+          <h2>Decks</h2>
+
+          <div class="row">
+            <label class="label">New deck</label>
+            <div class="inline">
+              <input id="newDeckName" class="input" placeholder="e.g., A1 Nouns" />
+              <button id="btnAddDeck" class="btn primary">Add</button>
+            </div>
+          </div>
+
+          <div id="deckList" class="list"></div>
+        </div>
+
+        <div class="card panelCard">
+          <h2 id="cardsTitle">Cards</h2>
+
+          <div id="noDeckSelected" class="empty">
+            Select a deck to manage its cards.
+          </div>
+
+          <div id="cardsArea" class="hidden">
+            <div class="row">
+              <label class="label">Add / edit card</label>
+            </div>
+
+            <form id="cardForm" class="form">
+              <input type="hidden" id="cardId" />
+              <div class="row">
+                <label class="label">English (front)</label>
+                <input id="fEnglish" class="input" placeholder="e.g., the house" required />
+              </div>
+
+              <div class="row">
+                <label class="label">German</label>
+                <input id="fGerman" class="input" placeholder="e.g., Haus" required />
+              </div>
+
+              <div class="row">
+                <label class="label">Article</label>
+                <select id="fArticle" class="input">
+                  <option value="">(none)</option>
+                  <option value="der">der</option>
+                  <option value="die">die</option>
+                  <option value="das">das</option>
+                </select>
+              </div>
+
+              <div class="row">
+                <label class="label">Plural</label>
+                <input id="fPlural" class="input" placeholder="e.g., Häuser" />
+              </div>
+
+              <div class="row">
+                <label class="label">Example sentence</label>
+                <textarea id="fExample" class="input" rows="2" placeholder="e.g., Das Haus ist groß."></textarea>
+              </div>
+
+              <div class="row">
+                <label class="label">Notes (optional)</label>
+                <textarea id="fNotes" class="input" rows="2" placeholder="mnemonic, tricky spelling, etc."></textarea>
+              </div>
+
+              <div class="row space">
+                <button id="btnSaveCard" class="btn primary" type="submit">Save</button>
+                <button id="btnClearCard" class="btn" type="button">Clear</button>
+              </div>
+            </form>
+
+            <hr class="sep" />
+
+            <div class="row">
+              <label class="label">Cards in this deck</label>
+              <input id="cardSearch" class="input" placeholder="Search…" />
+            </div>
+
+            <div id="cardList" class="list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- IMPORT/EXPORT -->
+    <section id="tab-importExport" class="panel">
+      <div class="grid2">
+        <div class="card panelCard">
+          <h2>Import CSV</h2>
+          <p class="muted">
+            CSV columns supported (header recommended):
+            <code>deck,english,german,article,plural,example,notes</code>
+          </p>
+
+          <div class="row">
+            <label class="label">Import file</label>
+            <input id="csvFile" class="input" type="file" accept=".csv,text/csv" />
+          </div>
+
+          <div class="row">
+            <label class="label">If no deck column</label>
+            <select id="importDeckSelect" class="input"></select>
+          </div>
+
+          <div class="row space">
+            <button id="btnImportCsv" class="btn primary">Import</button>
+          </div>
+
+          <div id="importMsg" class="note"></div>
+        </div>
+
+        <div class="card panelCard">
+          <h2>Export</h2>
+
+          <div class="row">
+            <label class="label">Export deck to CSV</label>
+            <select id="exportDeckSelect" class="input"></select>
+          </div>
+
+          <div class="row space">
+            <button id="btnExportCsv" class="btn primary">Download CSV</button>
+          </div>
+
+          <hr class="sep" />
+
+          <div class="row space">
+            <button id="btnExportJson" class="btn">Download full backup (JSON)</button>
+          </div>
+
+          <p class="muted small">
+            Keep backups — iOS can sometimes clear web storage under pressure.
+          </p>
+
+          <div id="exportMsg" class="note"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="tab-settings" class="panel">
+      <div class="card panelCard">
+        <h2>Settings</h2>
+
+        <div class="row">
+          <label class="label">Study: front side</label>
+          <select id="frontSetting" class="input">
+            <option value="english">English → German</option>
+            <option value="german">German → English</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <label class="label">TTS voice</label>
+          <select id="ttsVoice" class="input"></select>
+        </div>
+
+        <div class="row space">
+          <button id="btnResetAll" class="btn danger">Delete all data</button>
+        </div>
+
+        <div class="hint">
+          PWA install on iPhone: open the site in Safari → Share → Add to Home Screen.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span id="footerStatus">Ready.</span>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

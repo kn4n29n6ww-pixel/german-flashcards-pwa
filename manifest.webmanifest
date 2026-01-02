@@ -1,0 +1,10 @@
+{
+  "name": "German Flashcards",
+  "short_name": "DE Cards",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0b0b0d",
+  "theme_color": "#111111",
+  "icons": [],
+  "description": "Offline-first German flashcards with simple spaced repetition."
+}
